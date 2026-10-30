@@ -1,0 +1,31 @@
+{
+  "name": "Mini City Complete \u2014 Open World Game",
+  "short_name": "Mini City",
+  "description": "A GTA-style open-world mini game in your browser: roam a 3D city on foot, ride a bike, drive a car, fly a helicopter and an airplane, sail a boat and complete missions.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#87bfe8",
+  "theme_color": "#1565c0",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

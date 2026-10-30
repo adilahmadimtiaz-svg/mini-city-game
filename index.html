@@ -3,6 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1565c0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<meta name="description" content="Mini City Complete — a GTA-style open-world mini game. Roam a 3D city, drive cars and bikes, fly a helicopter and an airplane, sail a boat and complete missions.">
+
 <title>Mini City Complete - Full GTA-Style Game by Adil</title>
 <style>
   html,body{margin:0;padding:0;overflow:hidden;background:#87bfe8;font-family:Arial,Helvetica,sans-serif}
@@ -38,6 +47,13 @@ window.addEventListener('error', function(e){
 </script>
 
 
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+  });
+}
+</script>
 </head>
 <body>
 <div id="loading"><div>Loading Mini City...</div><small>No internet needed - the full game is inside this one file. Open it in Chrome.</small></div>
