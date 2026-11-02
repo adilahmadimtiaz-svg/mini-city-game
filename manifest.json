@@ -1,7 +1,7 @@
 {
-  "name": "Mini City Complete \u2014 Open World Game",
-  "short_name": "Mini City",
-  "description": "A GTA-style open-world mini game in your browser: roam a 3D city on foot, ride a bike, drive a car, fly a helicopter and an airplane, sail a boat and complete missions.",
+  "name": "Mini City V2 — Open World Game",
+  "short_name": "Mini City V2",
+  "description": "Mini City V2: a bigger, better open-world browser game by Adil — drive, fly, sail, complete missions, outrun the police.",
   "start_url": ".",
   "scope": ".",
   "display": "fullscreen",
