@@ -1,4 +1,4 @@
-const CACHE = 'mini-city-v2';
+const CACHE = 'mini-qrp-v1';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon-maskable-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
@@ -10,7 +10,7 @@ self.addEventListener('fetch', e => {
   // network-first so game updates always reach players; cache is the offline fallback
   e.respondWith(fetch(e.request).then(res => {
     const copy = res.clone();
-    caches.open(CACHE).then(c => c.put(e.request, copy)).catch(()=>{});
+    caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
     return res;
   }).catch(() => caches.match(e.request, {ignoreSearch: true})));
 });
