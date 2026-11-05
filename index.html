@@ -1774,7 +1774,7 @@ function nearestVehicle(){
 }
 function interact(){
   if(insideShop){
-    if(hero.position.z > SHOP_IN.z+10){ insideShop=false; hero.position.copy(SHOP_OUT); heroHeading=Math.PI; toast('You left the shop'); }
+    if(hero.position.z > SHOP_IN.z+10){ insideShop=false; const sp=freeSpot(SHOP_OUT.x, SHOP_OUT.z); hero.position.set(sp.x,0,sp.z); heroHeading=Math.PI; toast('You left the shop'); }
     return;
   }
   if(current){ // exit vehicle
@@ -1782,7 +1782,7 @@ function interact(){
     if((v.type==='plane'||v.type==='heli') && v.group.position.y>2.5){ toast('You cannot get out in the air! Land first.'); return; }
     current=null; hero.visible=true; SFX.door();
     if(v.type==='boat'){ hero.position.set(-282,0,v.group.position.z); }
-    else { hero.position.set(v.group.position.x+Math.cos(v.heading)*3.4, 0, v.group.position.z-Math.sin(v.heading)*3.4); if(hitsBuilding(hero.position.x,hero.position.z,0,1)) hero.position.set(v.group.position.x,0,v.group.position.z+3.4); }
+    else { const ex=v.group.position.x+Math.cos(v.heading)*3.4, ez=v.group.position.z-Math.sin(v.heading)*3.4; const sp=freeSpot(ex,ez); hero.position.set(sp.x,0,sp.z); }
     heroHeading=v.heading; v.speed=0; updateHUD(); return;
   }
   const tc=nearestTrafficCar();
@@ -1903,6 +1903,12 @@ function roofHeightAt(x,z){
 
 /* ---------- hero update ---------- */
 function updateHero(dt){
+  /* Safety net: if the hero ever ends up inside a building collider (bad
+     spawn, physics shove), slide him out to the nearest free spot instead
+     of leaving him frozen there forever. */
+  if(!insideShop && hitsBuilding(hero.position.x, hero.position.z, 0, 0.55)){
+    const sp=freeSpot(hero.position.x, hero.position.z); hero.position.x=sp.x; hero.position.z=sp.z;
+  }
   let mx=0, mz=0;
   const f = {x:-Math.sin(camYaw), z:-Math.cos(camYaw)}, r = {x:-f.z, z:f.x};
   if(fwdIn()){ mx+=f.x; mz+=f.z; } if(backIn()){ mx-=f.x; mz-=f.z; }
@@ -2048,9 +2054,23 @@ function updatePolice(dt){
   }
   if(wanted<=0) bustTimer=0; else if(police.every(p=>p.group.position.distanceTo(targetPos)>9)) bustTimer=Math.max(0,bustTimer-dt);
 }
+/* Find a nearby spot that is NOT inside any building collider. Used whenever
+   the hero is placed somewhere, so he can never spawn trapped inside a house
+   (the old fixed bust spot could land inside a generated house = total freeze). */
+function freeSpot(x,z){
+  if(!hitsBuilding(x,z,0,0.6)) return {x:x,z:z};
+  for(let r=2;r<=22;r+=2){
+    for(let a=0;a<8;a++){
+      const nx=x+Math.sin(a*Math.PI/4)*r, nz=z+Math.cos(a*Math.PI/4)*r;
+      if(!hitsBuilding(nx,nz,0,0.6)) return {x:nx,z:nz};
+    }
+  }
+  return {x:x,z:z};
+}
 function busted(){
   SFX.fail(); wanted=0; bustTimer=0; health=Math.max(10,health-15); money=Math.max(0,money-60);
-  current=null; hero.visible=true; insideShop=false; hero.position.set(shopPos.x,0,shopPos.z-18);
+  current=null; hero.visible=true; insideShop=false;
+  const sp=freeSpot(shopPos.x, shopPos.z-18); hero.position.set(sp.x,0,sp.z);
   toast('&#128110; BUSTED! -$60 and -15 health. The police let you go... this time.'); updateHUD();
 }
 
