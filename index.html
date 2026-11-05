@@ -24,6 +24,34 @@ gtag('config', 'G-VK2NE51D5W');
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"VideoGame","name":"MINI QPR — Mini Qadirpur Rawan","alternateName":"Qadirpur Rawan Game","description":"A free mini open-world GTA-style browser game set in Qadirpur Rawan, Multan, Pakistan — Khanewal Road, rickshaws, the morning milkman, real landmarks and 6 missions.","genre":["Action","Open World","Driving"],"gamePlatform":["Web Browser","Android"],"applicationCategory":"Game","operatingSystem":"Any","url":"https://adilahmadimtiaz-svg.github.io/mini-city-game/","author":{"@type":"Person","name":"Adil"},"offers":{"@type":"Offer","price":"0","priceCurrency":"USD","availability":"https://schema.org/InStock"}}
 </script>
+
+<!-- ===== ADS READY: Google H5 Games Ads (Ad Placement API) =====
+     Ads stay OFF until ADS_CONFIG.enabled=true AND a publisher ID is added.
+     That ID comes from Adil's own approved AdSense account + H5 Games Ads access.
+     When off (or if any ad call fails) the game runs exactly as before: no popups, no waiting. -->
+<script>
+window.ADS_CONFIG={enabled:true, publisherId:'', minGapSec:90, admobAppId:'ca-app-pub-8400475423004606~2371516965', admobInterstitialId:'ca-app-pub-8400475423004606/6119190281'};
+window.adConfig=window.adConfig||function(o){(window.adsbygoogle=window.adsbygoogle||[]).push(o);};
+if(window.ADS_CONFIG.enabled&&window.ADS_CONFIG.publisherId){
+  var _as=document.createElement('script'); _as.async=true; _as.crossOrigin='anonymous';
+  _as.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+encodeURIComponent(window.ADS_CONFIG.publisherId);
+  document.head.appendChild(_as);
+  window.adConfig({sound:'on', preloadAdBreaks:'on'});
+}
+window.GameAds=(function(){
+  var last=0;
+  function showInterstitial(name){
+    try{
+      if(!window.ADS_CONFIG.enabled) return false;
+      var now=Date.now(); if(now-last<window.ADS_CONFIG.minGapSec*1000) return false;
+      if(typeof window.adBreak==='function'){ last=now; window.adBreak({type:'next', name:name||'interstitial'}); return true; }
+      if(window.AndroidAds&&typeof window.AndroidAds.showInterstitial==='function'){ last=now; window.AndroidAds.showInterstitial(); return true; }
+    }catch(e){}
+    return false;
+  }
+  return {showInterstitial:showInterstitial};
+})();
+</script>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1565c0">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1713,6 +1741,7 @@ function currentTarget(){ const m=missions[missionIdx]; if(!m) return null; if(m
 function missionComplete(){
   const m=missions[missionIdx]; money+=m.reward; SFX.win(); toast('&#127881; Mission complete: <b>'+m.title+'</b> &nbsp;+$'+m.reward);
   missionIdx++; ringsHit=0; ringDone.fill(false); rings.forEach(r=>r.visible=true); updateHUD(); updateMissionBox();
+  if(window.GameAds) GameAds.showInterstitial('mission_complete');
 }
 function updateMissionBox(){
   const el=document.getElementById('mission'); const m=missions[missionIdx];
@@ -2491,6 +2520,7 @@ window.MC = { scene, camera, renderer, vehicles, hero, rings, police, SFX, perf:
 
 /* ---------- start ---------- */
 document.getElementById('playBtn').addEventListener('click', ()=>{
+  if(window.GameAds) GameAds.showInterstitial('game_start');
   document.getElementById('start').style.display='none'; running=true; SFX.init(); SFX.startJingle();
   toast('Welcome to MINI QPR — Qadirpur Rawan! &#127968; Hero Adil is in town — first mission: from Khanewal Road to the Passport Office!');
 });
