@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Qadirpur Rawan Game — MINI QPR | Mini Open-World Game by Adil</title>
 <meta name="google-site-verification" content="LKGqznYA1fyOz8AczCUrFhIcKKxQxdklfw9PiyAPyQk" />
 <meta name="google-adsense-account" content="ca-pub-8400475423004606">
@@ -60,7 +60,7 @@ window.GameAds=(function(){
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
-  html,body{margin:0;padding:0;overflow:hidden;background:#0b1622;font-family:'Segoe UI',system-ui,Arial,Helvetica,sans-serif;-webkit-user-select:none;user-select:none}
+  html,body{margin:0;padding:0;overflow:hidden;touch-action:none;overscroll-behavior:none;background:#0b1622;font-family:'Segoe UI',system-ui,Arial,Helvetica,sans-serif;-webkit-user-select:none;user-select:none}
   #game{position:fixed;inset:0}
   canvas{display:block}
   .hud{position:fixed;z-index:10;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.75)}
@@ -2239,6 +2239,7 @@ const PerfGov = {
 const clockT = new THREE.Clock();
 const _camDesired = new THREE.Vector3();
 let _lastFrameT = (typeof performance!=='undefined' && performance.now)? performance.now() : 0;
+let _idleLast=0;
 function animate(){
   requestAnimationFrame(animate);
   const _nowT = (typeof performance!=='undefined' && performance.now)? performance.now() : _lastFrameT+16.7;
@@ -2259,6 +2260,11 @@ function animate(){
     if(current){ const v=current; speedEl.innerHTML=v.name+'<br>'+Math.round(Math.abs(v.speed)*3.6)+' km/h'+(v.group.position.y>2? '<br><span class="alt">Alt '+Math.round(v.group.position.y)+' m</span>':''); }
     else speedEl.textContent = insideShop? 'In shop' : 'On foot';
   }
+  /* Idle (start screen not yet playing): render at ~8 fps instead of 60.
+     The animated 3D backdrop otherwise saturates the main thread before the
+     game even starts — this was the bulk of the PageSpeed Total Blocking
+     Time. Gameplay is unaffected: after PLAY, rendering is full-rate. */
+  if(!running){ const _nowI=performance.now(); if(_nowI-_idleLast<120) return; _idleLast=_nowI; }
   /* camera — smooth follow with lag, plus a small FOV kick at speed */
   const target = current? current.group.position : hero.position;
   let camDist=8.5, camH=3.4;
