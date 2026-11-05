@@ -1,4 +1,4 @@
-const CACHE = 'mini-qpr-bustfix-v1';
+const CACHE = 'mini-qpr-perf-v1';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon-maskable-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
