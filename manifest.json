@@ -1,7 +1,7 @@
 {
-  "name": "MINI QRP — Mini Qadirpur Rawan",
-  "short_name": "MINI QRP",
-  "description": "MINI QRP: your own town Qadirpur Rawan (Multan) as an open-world game by Adil — drive down Khanewal Road, ride rickshaws, visit real landmarks, complete missions.",
+  "name": "MINI QPR — Mini Qadirpur Rawan",
+  "short_name": "MINI QPR",
+  "description": "MINI QPR: your own town Qadirpur Rawan (Multan) as an open-world game by Adil — drive down Khanewal Road, ride rickshaws, visit real landmarks, complete missions.",
   "start_url": ".",
   "scope": ".",
   "display": "fullscreen",
