@@ -225,7 +225,7 @@ renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.04;
 document.getElementById('game').appendChild(renderer.domElement);
-addEventListener('resize', ()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); _backdropDone=false; });
+addEventListener('resize', ()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
 
 /* ---------- gradient sky dome + stars + sun disc ---------- */
 const skyGroup = new THREE.Group(); scene.add(skyGroup);
@@ -2239,7 +2239,6 @@ const PerfGov = {
 const clockT = new THREE.Clock();
 const _camDesired = new THREE.Vector3();
 let _lastFrameT = (typeof performance!=='undefined' && performance.now)? performance.now() : 0;
-let _backdropDone=false, _resRestored=false;
 function animate(){
   requestAnimationFrame(animate);
   const _nowT = (typeof performance!=='undefined' && performance.now)? performance.now() : _lastFrameT+16.7;
@@ -2260,24 +2259,15 @@ function animate(){
     if(current){ const v=current; speedEl.innerHTML=v.name+'<br>'+Math.round(Math.abs(v.speed)*3.6)+' km/h'+(v.group.position.y>2? '<br><span class="alt">Alt '+Math.round(v.group.position.y)+' m</span>':''); }
     else speedEl.textContent = insideShop? 'In shop' : 'On foot';
   }
-  /* Idle (start screen not yet playing): render ONE static backdrop frame at
-     half resolution, then freeze until PLAY. Continuously rendering the 3D
-     scene behind the start overlay saturated the main thread before the game
-     even started — that was the bulk of the PageSpeed Total Blocking Time.
-     The overlay covers most of the screen, so a still backdrop at half
-     resolution looks the same. On the first gameplay frame the full
-     resolution is restored below. */
-  if(!running){
-    if(_backdropDone) return;
-    _backdropDone=true;
-    const _bt = hero.position;
-    camera.position.set(_bt.x+Math.sin(camYaw)*8.5, Math.max(_bt.y+3.4, 1.4), _bt.z+Math.cos(camYaw)*8.5);
-    camera.lookAt(_bt.x, _bt.y+1.7, _bt.z);
-    renderer.setPixelRatio(0.5); renderer.setSize(innerWidth, innerHeight);
-    renderer.render(scene,camera);
-    return;
-  }
-  if(!_resRestored){ _resRestored=true; renderer.setPixelRatio(Math.min(devicePixelRatio||1, 1.5)); renderer.setSize(innerWidth, innerHeight); }
+  /* Idle (start screen not yet playing): do not render at all. Measured with
+     a long-task probe: the first 3D render (shader compile + texture upload)
+     costs ~1s of main thread in test environments and was a large share of
+     the remaining PageSpeed Total Blocking Time. It now happens once, right
+     after the player presses PLAY. The start overlay is 88–94% opaque, so
+     the unpainted canvas behind it is not noticeable. Chunking the world
+     build itself was measured and rejected: Three.js evaluation (~1.5s) and
+     this first render dominate the load tasks, not the build (~0.4s). */
+  if(!running) return;
   /* camera — smooth follow with lag, plus a small FOV kick at speed */
   const target = current? current.group.position : hero.position;
   let camDist=8.5, camH=3.4;
@@ -2561,10 +2551,14 @@ window.MC = { scene, camera, renderer, vehicles, hero, rings, police, SFX, perf:
 })();
 
 /* ---------- start ---------- */
-document.getElementById('playBtn').addEventListener('click', ()=>{
+document.getElementById('playBtn').addEventListener('click', (e)=>{
   if(window.GameAds) GameAds.showInterstitial('game_start');
-  document.getElementById('start').style.display='none'; running=true; SFX.init(); SFX.startJingle();
-  toast('Welcome to MINI QPR — Qadirpur Rawan! &#127968; Hero Adil is in town — first mission: from Khanewal Road to the Passport Office!');
+  const btn=e.currentTarget; btn.textContent='LOADING…'; btn.disabled=true;
+  /* two frames so the LOADING label paints before the first (expensive) render */
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    document.getElementById('start').style.display='none'; running=true; SFX.init(); SFX.startJingle();
+    toast('Welcome to MINI QPR — Qadirpur Rawan! &#127968; Hero Adil is in town — first mission: from Khanewal Road to the Passport Office!');
+  }));
 });
 
 
